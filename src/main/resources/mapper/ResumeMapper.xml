@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lrcx.mapper.ResumeMapper">
+    <select id="queryAllResume" resultType="resume">
+        select * from resume
+    </select>
+    <insert id="insertResume" parameterType="resume">
+        insert into resume (name,file) values (#{name},#{file})
+    </insert>
+    <select id="queryResume" resultType="resume" parameterType="String">
+        select name,file from resume where name=#{name}
+    </select>
+    <delete id="deleteResume" parameterType="String">
+        delete from resume where name = #{name}
+    </delete>
+    <update id="editResume" parameterType="String">
+        update resume set name=#{newname} where name=#{oldname}
+    </update>
+</mapper>

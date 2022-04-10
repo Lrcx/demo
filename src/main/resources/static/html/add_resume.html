@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../layui/layui.js"></script>
+    <link rel="stylesheet" type="text/css" href="../layui/css/layui.css">
+</head>
+<body>
+
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md4 layui-col-md-offset4">
+            <div class="layui-form layui-form-pane">
+
+                <div class="layui-form-item">
+                    <button type="button" class="layui-btn layui-btn-fluid" id="file">
+                        <i class="layui-icon layui-icon-upload"></i>上传简历
+                    </button>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">输入文件名：</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="title" id="title" required lay-verify="required" placeholder="请输入文件名" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-fluid" id="submit" lay-submit lay-filter="formDemo" >立即提交</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    layui.use(['upload','form'],function (){
+        var upload=layui.upload;
+        var form=layui.form;
+        var $=layui.jquery;
+        var uploadInst=upload.render({
+            elem:'#file',
+            url:'/upload',
+            auto:false,  //选择文件不自动上传，配合bindAction使用
+            bindAction:"#submit",
+
+            accept:'file',
+            method:'post',
+            exts: 'pdf',
+            before: function(){
+                this.data={name:$("#title").val()}
+            },
+            done:function (res){
+                console.log(res)
+                console.log($("#title").val())
+                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                parent.layer.close(index); //再执行关闭
+            }
+        });
+    })
+</script>
+</body>
+</html>

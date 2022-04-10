@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简历</title>
+  <script th:src="@{/jquery-3.6.0.js}"></script>
+  <link rel="stylesheet" type="text/css" th:href="@{/layui/css/layui.css}">
+  <script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+  <script type="text/javascript" th:src="@{/PDF/build/pdf.js}"></script>
+</head>
+<body>
+<div class="layui-container">
+  <div class="layui-row">
+    <div class="layui-col-md6 layui-col-md-offset3">
+      <table id="table" lay-filter="resumetable"></table>
+    </div>
+    <div class="layui-col-md6 layui-col-md-offset3">
+      <button class="layui-btn layui-btn-fluid" id="addResume">添加简历</button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" th:inline="none">
+  layui.use(['form','layer','table'],function(){
+    var $=layui.$;
+    var table=layui.table;
+    var layer=layui.layer;
+
+    table.on('tool(resumetable)',function(obj){
+      if(obj.event == 'del'){
+        console.log(obj)
+        layer.confirm("是否删除",{icon: 3, title:'提示'},function(index){
+          $.ajax({
+            url:'/delresume',
+            data: obj.data,
+            success:function (){
+              layer.close(index);
+              layer.msg('删除成功',{icon: 1,time:2000},function (){
+                obj.del();
+              })
+
+            }
+          })
+
+        })
+      }else if (obj.event=='pre'){
+        console.log(obj.event);
+        window.open("PDF/web/viewer.html?file=http://yilin.cool/preview/"+obj.data.name);
+      }else if(obj.event=='edit'){
+        layer.open({
+          type:2,
+          content: '/html/edit_resume.html',
+          title:'修改简历',
+          //层弹出成功后回调
+          success:function(layero,index){
+            var body = layer.getChildFrame('body', index);
+            body.find("#oldtitle").val(obj.data.name);
+          },
+          end:function(){
+            table.reload('table01')
+          }
+         });
+      }
+    })
+
+    $("#addResume").click(function (){
+      layer.open({
+        type:2,
+        content:'/html/add_resume.html',
+        title:'添加简历',
+        end:function(){
+          table.reload('table01');
+        }
+      })
+    })
+
+    table.render({
+      elem:'#table',
+      url:'/getallresume',
+      page:true,
+      id:'table01',
+      // [[]] 是thymeleaf的内联表达式，可以换行或者在script标签中使用th:inline="none"
+      cols:[[
+        {field:'name',title:'文件名'},
+        {title:'操作',align:'center',templet:function(d){
+          return "<button class='layui-btn layui-btn-xs layui-btn-radius' lay-event='pre'>预览</button>" +
+                  "<button class='layui-btn layui-btn-xs layui-btn-danger layui-btn-radius' lay-event='del'>删除</button>" +
+                  "<btton class='layui-btn layui-btn-xs layui-btn-normal layui-btn-radius' lay-event='edit'>更新</btton>";
+          }},
+      ]],
+      parseData:function(res){
+        console.log(res)
+        return{
+          "code":0,
+          "data":res
+        }
+      }
+    })
+  });
+
+  function previewPDF(){
+    window.open("PDF/web/viewer.html?file=http://localhost/preview/abc")
+  }
+
+
+</script>
+</body>
+</html>
